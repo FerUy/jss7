@@ -179,7 +179,7 @@ public class TestPsiServerConfigurationData {
     private EUtranCgi eUtranCgi = null;
     private TAId taId = null;
     private MAPExtensionContainer mapExtensionContainer = null;
-    byte[] mmeNom = new BigInteger("10102233445566778899", 16).toByteArray();
+    byte[] mmeNom = {10, 32, 71, 4, 0, 18, 7, 59, 24, 77};
     private DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
     private LSAIdentity lsaIdentity = null;
     private LocationNumberMap locationNumberMap = null;
@@ -827,8 +827,7 @@ public class TestPsiServerConfigurationData {
             xml.add(clt.geodeticUncertainty, GEODETIC_UNCERTAINTY, Double.class);
             xml.add(clt.geodeticConfidence, GEODETIC_CONFIDENCE, Integer.class);
             xml.add(clt.currentLocationRetrieved, CURRENT_LOCATION_RETRIEVED, Boolean.class);
-            String mmeNameStr = new String(clt.mmeName.getData());
-            xml.add(mmeNameStr, MME_NAME, String.class);
+            xml.add(clt.mmeName.getData().toString(), MME_NAME, String.class);
             xml.add(clt.subscriberStateStr, SUBSCRIBER_STATE, String.class);
             xml.add(clt.routeingNum, ROUTEING_NUMBER, String.class);
             /*xml.add(clt.msClassmark2.getData().toString(), MS_CLASSMARK_2, String.class);

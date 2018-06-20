@@ -391,7 +391,7 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         EUtranCgi eUtranCgi = null;
         TAId taId = null;
         MAPExtensionContainer mapExtensionContainer = null;
-        byte[] mmeNom = { 10, 32, 71, 4, 0, 18, 7, 59, 24, 77};
+        byte[] mmeNom = {10, 32, 71, 4, 0, 18, 7, 59, 24, 77};
         DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
         LSAIdentity lsaIdentity = null;
         LocationNumberMap locationNumberMap = null;
