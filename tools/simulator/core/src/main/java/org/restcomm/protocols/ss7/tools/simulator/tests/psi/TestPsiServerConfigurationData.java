@@ -70,11 +70,10 @@ import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.Geo
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.SubscriberStateImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.MNPInfoResImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.RouteingNumberImpl;
-
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.EUtranCgiImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.TAIdImpl;
 
 import org.restcomm.protocols.ss7.tools.simulator.tests.sms.SRIReaction;
-
-import java.math.BigInteger;
 
 /**
  * @author <a href="mailto:fernando.mendioroz@gmail.com"> Fernando Mendioroz </a>
@@ -151,7 +150,7 @@ public class TestPsiServerConfigurationData {
     private String numberingPlan = "1";
     private String networkNodeNumber = "59804800025";
     private String imsi = "748010192837465";
-    private String lmsi = "09876543";
+    private String lmsi = "11121314";
     private int mcc = 748;
     private int mnc = 1;
     private int lac = 5;
@@ -176,10 +175,12 @@ public class TestPsiServerConfigurationData {
     private int geodeticConfidence = 1;
     private LocationInformationEPS locationInformationEPS = null;
     private boolean currentLocationRetrieved = true;
-    private EUtranCgi eUtranCgi = null;
-    private TAId taId = null;
+    byte[] lteCgi = {53, 48, 57, 50, 49, 55, 49};
+    EUtranCgi eUtranCgi = new EUtranCgiImpl(lteCgi);
+    byte[] trackinAreaId = {49, 51, 50, 57, 53};
+    TAId taId = new TAIdImpl(trackinAreaId);
     private MAPExtensionContainer mapExtensionContainer = null;
-    byte[] mmeNom = {10, 32, 71, 4, 0, 18, 7, 59, 24, 77};
+    byte[] mmeNom = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49};
     private DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
     private LSAIdentity lsaIdentity = null;
     private LocationNumberMap locationNumberMap = null;

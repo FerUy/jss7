@@ -105,6 +105,7 @@ import org.restcomm.protocols.ss7.map.primitives.USSDStringImpl;
 import org.restcomm.protocols.ss7.map.primitives.AddressStringImpl;
 import org.restcomm.protocols.ss7.map.primitives.DiameterIdentityImpl;
 import org.restcomm.protocols.ss7.map.primitives.GSNAddressImpl;
+import org.restcomm.protocols.ss7.map.primitives.LMSIImpl;
 
 import org.restcomm.protocols.ss7.map.service.lsm.DeferredLocationEventTypeImpl;
 import org.restcomm.protocols.ss7.map.service.lsm.LCSClientNameImpl;
@@ -261,9 +262,8 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             ISDNAddressString sgsnNumber = new ISDNAddressStringImpl(AddressNature.international_number,
                     NumberingPlan.ISDN, sgsnAddress);
             AdditionalNumber additionalNumber = new AdditionalNumberImpl(mscNumber, sgsnNumber);
-            String lmsiStr = "4321";
-            byte[] Lmsi = lmsiStr.getBytes();
-            LMSI lmsi = mapFactory.createLMSI(Lmsi);
+            byte[] lmsiByte = {50, 57, 49, 53};
+            LMSI lmsi = new LMSIImpl(lmsiByte);
             Boolean gprsNodeIndicator = false;
             boolean lcsCapabilitySetRelease98_99 = true;
             boolean lcsCapabilitySetRelease4 = true;
@@ -276,17 +276,17 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             SupportedLCSCapabilitySets additionalLCSCapabilitySets = new SupportedLCSCapabilitySetsImpl(lcsCapabilitySetRelease98_99, lcsCapabilitySetRelease4,
                     lcsCapabilitySetRelease5, lcsCapabilitySetRelease6, lcsCapabilitySetRelease7);
             MAPExtensionContainer mapExtensionContainer = null;
-            byte[] mmeNom = { 10, 32, 71, 4, 0, 18, 7, 59, 24, 77};
+            byte[] mmeNom = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49};
             DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
-            byte[] aaaSN = { 18, 32, 71, 4, 0, 18, 7, 59, 24, 77, 51};
+            byte[] aaaSN = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49, 55};
             DiameterIdentity aaaServerName = new DiameterIdentityImpl(aaaSN);
-            byte[] visitedGmlcAddress = { 21, 48, 16, 9, 5, 18};
+            byte[] visitedGmlcAddress = {49, 53, 55, 48, 48, 51};
             GSNAddress vGmlcAddress = new GSNAddressImpl(visitedGmlcAddress);
-            byte[] homeGmlcAddress = { 45, 0, 24, 3, 91, 12};
+            byte[] homeGmlcAddress = {49, 51, 52, 53, 55, 48};
             GSNAddress hGmlcAddress = new GSNAddressImpl(homeGmlcAddress);
-            byte[] pivacyProfileRegisterAddress = { 2, 78, 16, 24, 4, 10};
+            byte[] pivacyProfileRegisterAddress = {57, 51, 56, 48, 49, 50};
             GSNAddress pprAddress = new GSNAddressImpl(pivacyProfileRegisterAddress);
-            byte[] addVGmlcAddress = { 26, 19, 33, 54, 72};
+            byte[] addVGmlcAddress = {49, 49, 52, 54, 52};
             GSNAddress additionalVGmlcAddress = new GSNAddressImpl(addVGmlcAddress);
 
             LCSLocationInfo lcsLocationInfo = mapFactory.createLCSLocationInfo(mscNumber, lmsi, mapExtensionContainer, gprsNodeIndicator,
@@ -387,10 +387,10 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
         IMEI imei;
 
         if (provideSubscriberLocationRequest.getLCSClientID() == null) {
-            String clientName = "219023";
+            String clientName = "848271";
             LCSClientName lcsClientName = new LCSClientNameImpl(cbsDataCodingScheme, ussdString, lcsFormatIndicator);
             AddressString lcsClientDialedByMS = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, clientName);
-            byte[] apn = {1, 1, 2, 7, 10, 1, 1};
+            byte[] apn = {103, 111, 111, 103, 108, 101, 46, 99, 111, 109};
             APN lcsAPN = new APNImpl(apn);
             lcsClientID = new LCSClientIDImpl(LCSClientType.valueAddedServices, lcsClientExternalID, lcsClientInternalID, lcsClientName, lcsClientDialedByMS, lcsAPN, null);
         } else {
@@ -482,16 +482,16 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
                 NumberingPlan.ISDN, "598990192837");
         ISDNAddressString sgsnNumber = new ISDNAddressStringImpl(AddressNature.international_number,
                 NumberingPlan.ISDN, "598990192837");
-        byte[] utranData = new BigInteger("43210987654321", 16).toByteArray();
+        byte[] utranData = new BigInteger("49514957554951", 16).toByteArray();
         UtranPositioningDataInfo utranPositioningDataInfo = new UtranPositioningDataInfoImpl(utranData);
         AccuracyFulfilmentIndicator accuracyFulfilmentIndicator = AccuracyFulfilmentIndicator.requestedAccuracyFulfilled;
         String velStr = "1234567";
         byte[] velEstimate = velStr.getBytes();
         VelocityEstimate velocityEstimate = new VelocityEstimateImpl(velEstimate);
         boolean moLrShortCircuitIndicator = true;
-        byte[] gGanss = {66, 66, 01, 02, 99, 79};
+        byte[] gGanss = {56, 50, 48, 49, 51, 53};
         GeranGANSSpositioningData geranGANSSpositioningData = new GeranGANSSpositioningDataImpl(gGanss);
-        byte[] uGanss = {77, 17, 01, 01, 98, 18};
+        byte[] uGanss = {57, 51, 51, 54, 48, 48};
         UtranGANSSpositioningData utranGANSSpositioningData = new UtranGANSSpositioningDataImpl(uGanss);
         ServingNodeAddress targetServingNodeForHandover = mapFactory.createServingNodeAddressMscNumber(mscNumber);
 
@@ -674,7 +674,7 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             LCSFormatIndicator lcsFormatIndicator = LCSFormatIndicator.url;
             LCSClientName lcsClientName = new LCSClientNameImpl(cbsDataCodingScheme, ussdString, lcsFormatIndicator);
             AddressString lcsClientDialedByMS = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, clientName);
-            byte[] apn = {1, 1, 2, 7, 10, 1, 1};
+            byte[] apn = {103, 111, 111, 103, 108, 101, 46, 99, 111, 109};
             APN lcsAPN = new APNImpl(apn);
             LCSRequestorID lcsRequestorID = null;
             LCSClientID lcsClientID = mapParameterFactory.createLCSClientID(configData.getLcsClientType(), lcsClientExternalID, lcsClientInternalID,
@@ -688,9 +688,8 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             // SLR TC-user optional parameters
             IMEI imei = mapParameterFactory.createIMEI(getIMEI());
 
-            String lmsiStr = "4321";
-            byte[] Lmsi = lmsiStr.getBytes();
-            LMSI lmsi = mapFactory.createLMSI(Lmsi);
+            byte[] lmsiByte = {50, 57, 49, 53};
+            LMSI lmsi = new LMSIImpl(lmsiByte);
 
             // LSR Conditional parameters
             IMSI imsi = mapParameterFactory.createIMSI(getIMSI());
@@ -742,8 +741,9 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             byte[] velEstimate = velStr.getBytes();
             VelocityEstimate velocityEstimate = new VelocityEstimateImpl(velEstimate);
             Integer sequenceNumber = 0;
-            //PeriodicLDRInfo periodicLDRInfo = mapParameterFactory.createPeriodicLDRInfo(getReportingAmount(), getReportingInterval());
-            PeriodicLDRInfo periodicLDRInfo = mapParameterFactory.createPeriodicLDRInfo(10, 60);
+            int reportingAmount = 10;
+            int reportingInterval = 60;
+            PeriodicLDRInfo periodicLDRInfo = mapParameterFactory.createPeriodicLDRInfo(reportingAmount, reportingInterval);
             Boolean moLrShortCircuitIndicator = false;
             GeranGANSSpositioningData geranGANSSpositioningData = null;
             UtranGANSSpositioningData utranGANSSpositioningData = null;
@@ -758,9 +758,9 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
                     lcsCapabilitySetRelease5, lcsCapabilitySetRelease6, lcsCapabilitySetRelease7);
             SupportedLCSCapabilitySets additionalLCSCapabilitySets = new SupportedLCSCapabilitySetsImpl(lcsCapabilitySetRelease98_99, lcsCapabilitySetRelease4,
                     lcsCapabilitySetRelease5, lcsCapabilitySetRelease6, lcsCapabilitySetRelease7);
-            byte[] mme = {87, 20, 20, 10, 30, 01, 74, 34, 01, 00, 10};
+            byte[] mme = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49};
             DiameterIdentity mmeName = new DiameterIdentityImpl(mme);
-            byte[] aaa = {87, 20, 12, 10, 30, 17, 74, 34, 1, 10, 11, 12};
+            byte[] aaa = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49, 53, 48};
             DiameterIdentity aaaServerName = new DiameterIdentityImpl(aaa);
 
             LCSLocationInfo lcsLocationInfo = mapParameterFactory.createLCSLocationInfo(networkNodeNumber, lmsi, extensionContainer, gprsNodeIndicator,
@@ -942,13 +942,11 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
     public void onSubscriberLocationReportResponse(SubscriberLocationReportResponse subscriberLocationReportResponseIndication) {
         logger.debug("onSubscriberLocationReportResponse");
         this.countMapLcsResp++;
+        String naESRD = null;
+        if (subscriberLocationReportResponseIndication.getNaESRD() != null)
+            naESRD = subscriberLocationReportResponseIndication.getNaESRD().getAddress();
         this.testerHost.sendNotif(SOURCE_NAME,
-                "Rcvd: SubscriberLocationReportResponse", this
-                        .createSLRResData(
-                                subscriberLocationReportResponseIndication
-                                        .getInvokeId(),
-                                subscriberLocationReportResponseIndication
-                                        .getNaESRD().getAddress()), Level.INFO);
+                "Rcvd: SubscriberLocationReportResponse", this.createSLRResData(subscriberLocationReportResponseIndication.getInvokeId(),naESRD), Level.INFO);
     }
 
     //**********************************************************//

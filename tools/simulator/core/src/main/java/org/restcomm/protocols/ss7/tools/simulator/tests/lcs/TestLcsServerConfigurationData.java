@@ -94,10 +94,9 @@ public class TestLcsServerConfigurationData {
   private AddressNature addressNature = AddressNature.international_number;
   private NumberingPlan numberingPlanType = NumberingPlan.ISDN;
   private String numberingPlan = "1";
-  //private ISDNAddressString mlcNumber =  mapParameterFactory.createISDNAddressString(addressNature,numberingPlanType, "5980482910");
   private String mlcNumber = "5980482910";
   private String imsi = "748010192837465";
-  private String lmsi = "09876543";
+  private String lmsi = "50574953";
   private String networkNodeNumber = "598048";
   private String msisdn = "59899077937";
   private String imei = "354449063537030";
@@ -106,7 +105,7 @@ public class TestLcsServerConfigurationData {
   private Integer mnc = 01;
   private Integer lac = 79010;
   private Integer cellId = 222;
-  private Integer lcsReferenceNumber = 921;
+  private Integer lcsReferenceNumber = 1;
   private LCSEvent lcsEvent = LCSEvent.emergencyCallOrigination;
   private TypeOfShape typeOfShape = TypeOfShape.EllipsoidArc;
   private TypeOfShapeEnumerated typeOfShapeEnumerated = TypeOfShapeEnumerated.createInstance("EllipsoidArc");
@@ -129,7 +128,7 @@ public class TestLcsServerConfigurationData {
   {
     try {
       locationEstimate = new ExtGeographicalInformationImpl(typeOfShape, latitude, longitude, uncertainty, uncertaintySemiMajorAxis,
-          uncertaintySemiMinorAxis, angleOfMajorAxis, confidence, altitude, uncertaintyAltitude, innerRadius, uncertaintyRadius, offsetAngle, includedAngle);
+              uncertaintySemiMinorAxis, angleOfMajorAxis, confidence, altitude, uncertaintyAltitude, innerRadius, uncertaintyRadius, offsetAngle, includedAngle);
     } catch (MAPException e) {
       e.printStackTrace();
     }
@@ -148,7 +147,7 @@ public class TestLcsServerConfigurationData {
   private Integer reportingAmount = 10;
   private Integer reportingInterval = 10;
   private Integer dataCodingScheme = 15;
-  private String naESRDAddress = "11114444";
+  private String naESRDAddress = "51514948";
 
   public SRIforLCSReaction getSriForLCSReaction() {
     return sriForLCSReaction;
