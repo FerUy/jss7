@@ -390,7 +390,7 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             String clientName = "848271";
             LCSClientName lcsClientName = new LCSClientNameImpl(cbsDataCodingScheme, ussdString, lcsFormatIndicator);
             AddressString lcsClientDialedByMS = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, clientName);
-            byte[] apn = {103, 111, 111, 103, 108, 101, 46, 99, 111, 109};
+            byte[] apn = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
             APN lcsAPN = new APNImpl(apn);
             lcsClientID = new LCSClientIDImpl(LCSClientType.valueAddedServices, lcsClientExternalID, lcsClientInternalID, lcsClientName, lcsClientDialedByMS, lcsAPN, null);
         } else {
@@ -674,7 +674,7 @@ public class TestLcsServerMan extends TesterBase implements TestLcsServerManMBea
             LCSFormatIndicator lcsFormatIndicator = LCSFormatIndicator.url;
             LCSClientName lcsClientName = new LCSClientNameImpl(cbsDataCodingScheme, ussdString, lcsFormatIndicator);
             AddressString lcsClientDialedByMS = new AddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, clientName);
-            byte[] apn = {103, 111, 111, 103, 108, 101, 46, 99, 111, 109};
+            byte[] apn = {9, 8, 7, 6, 5, 4, 3, 2, 1, 0};
             APN lcsAPN = new APNImpl(apn);
             LCSRequestorID lcsRequestorID = null;
             LCSClientID lcsClientID = mapParameterFactory.createLCSClientID(configData.getLcsClientType(), lcsClientExternalID, lcsClientInternalID,
