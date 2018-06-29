@@ -24,6 +24,8 @@ package org.restcomm.protocols.ss7.tools.simulator.tests.psi;
 import javolution.xml.XMLFormat;
 import javolution.xml.stream.XMLStreamException;
 
+import org.restcomm.protocols.ss7.isup.impl.message.parameter.LocationNumberImpl;
+import org.restcomm.protocols.ss7.isup.message.parameter.LocationNumber;
 import org.restcomm.protocols.ss7.map.api.MAPException;
 import org.restcomm.protocols.ss7.map.api.MAPParameterFactory;
 
@@ -35,6 +37,9 @@ import org.restcomm.protocols.ss7.map.api.primitives.CellGlobalIdOrServiceAreaId
 import org.restcomm.protocols.ss7.map.api.primitives.DiameterIdentity;
 import org.restcomm.protocols.ss7.map.api.primitives.IMEI;
 
+import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.PDPContextInfo;
+import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.PSSubscriberStateChoice;
+import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.RAIdentity;
 import org.restcomm.protocols.ss7.map.primitives.DiameterIdentityImpl;
 import org.restcomm.protocols.ss7.map.primitives.IMEIImpl;
 import org.restcomm.protocols.ss7.map.primitives.ISDNAddressStringImpl;
@@ -62,6 +67,10 @@ import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.EUtranCgi;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.GPRSMSClass;
 
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationInformationGPRSImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationNumberMapImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.PSSubscriberStateImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.RAIdentityImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.SubscriberInfoImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationInformationImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationInformationEPSImpl;
@@ -73,7 +82,10 @@ import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.Rou
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.EUtranCgiImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.TAIdImpl;
 
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberManagement.LSAIdentityImpl;
 import org.restcomm.protocols.ss7.tools.simulator.tests.sms.SRIReaction;
+
+import java.util.ArrayList;
 
 /**
  * @author <a href="mailto:fernando.mendioroz@gmail.com"> Fernando Mendioroz </a>
@@ -138,6 +150,7 @@ public class TestPsiServerConfigurationData {
     protected static final String TA_ID = "taId";
     protected static final String PS_SUBSCRIBER_STATE = "psSubscriberState";
     protected static final String LSA_IDENTITY = "lsaIdentity";
+    protected static final String RA_ID = "RouteingAreaId";
     protected static final String LOCATION_NUMBER_MAP = "locationNumberMap";
     protected static final String USER_CGI_INFORMATION = "lsaIdentity";
     protected static final String LOCATION_INFORMATION_GPRS = "locationInformationGPRS";
@@ -157,10 +170,10 @@ public class TestPsiServerConfigurationData {
     private int ci = 3479;
     private String mscAddress = "5982123007";
     private String vlrAddress = "5982123007";
-    private ISDNAddressString mscNumber = new ISDNAddressStringImpl(AddressNature.international_number,
-            NumberingPlan.ISDN, mscAddress);
-    private ISDNAddressString vlrNumber = new ISDNAddressStringImpl(AddressNature.international_number,
-            NumberingPlan.ISDN, vlrAddress);
+    private String sgsnAddress = "5982133021";
+    private ISDNAddressString mscNumber = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, mscAddress);
+    private ISDNAddressString vlrNumber = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, vlrAddress);
+    private ISDNAddressString sgsnNumber = new ISDNAddressStringImpl(AddressNature.international_number, NumberingPlan.ISDN, sgsnAddress);
     private int aol = 1;
     private boolean saiPresent = false;
     private TypeOfShape geographicalTypeOfShape = TypeOfShape.EllipsoidPointWithUncertaintyCircle;
@@ -176,14 +189,16 @@ public class TestPsiServerConfigurationData {
     private LocationInformationEPS locationInformationEPS = null;
     private boolean currentLocationRetrieved = true;
     byte[] lteCgi = {53, 48, 57, 50, 49, 55, 49};
+    private String eUtranCgiString = new String(lteCgi.getClass().toString());
     EUtranCgi eUtranCgi = new EUtranCgiImpl(lteCgi);
     byte[] trackinAreaId = {49, 51, 50, 57, 53};
+    private String taIdString = trackinAreaId.getClass().toString();
     TAId taId = new TAIdImpl(trackinAreaId);
     private MAPExtensionContainer mapExtensionContainer = null;
     byte[] mmeNom = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49};
+    private String mmeNameString = mmeNom.getClass().getName();
     private DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
     private LSAIdentity lsaIdentity = null;
-    private LocationNumberMap locationNumberMap = null;
     private UserCSGInformation userCSGInformation = null;
     SubscriberStateChoice subscriberStateChoice = SubscriberStateChoice.assumedIdle;
     private String subscriberStateStr = subscriberStateChoice.toString();
@@ -191,7 +206,10 @@ public class TestPsiServerConfigurationData {
     private String notReachableReasonStr = notReachableReason.toString();
     private SubscriberState subscriberState = new SubscriberStateImpl(subscriberStateChoice, notReachableReason);
     LocationInformationGPRS locationInformationGPRS = null;
-    PSSubscriberState psSubscriberState = null;
+    private PSSubscriberStateChoice psSubscriberStateChoice = PSSubscriberStateChoice.psAttachedReachableForPaging;
+    private String psSubscriberStateChoiceString = String.valueOf(psSubscriberStateChoice);
+    ArrayList<PDPContextInfo> pdpContextInfoList = null;
+    private PSSubscriberState psSubscriberState = new PSSubscriberStateImpl(psSubscriberStateChoice, notReachableReason, pdpContextInfoList);
     GPRSMSClass gprsmsClass = null;
     String imei = "01171400466105";
     IMEI iMei = new IMEIImpl(imei);
@@ -201,6 +219,30 @@ public class TestPsiServerConfigurationData {
     String msisdnStr = "59899077937";
     ISDNAddressString msisdn = new ISDNAddressStringImpl(AddressNature.international_number,
             NumberingPlan.ISDN, msisdnStr);
+    byte[] lsaId = {49, 51, 50};
+    private String lsaIdString = lsaId.getClass().toString();
+    LSAIdentity selectedLSAIdentity = new LSAIdentityImpl(lsaId);
+    byte[] raId = {49, 51, 50, 57, 53, 50};
+    private String raIdString = raId.getClass().toString();
+    RAIdentity routeingAreaIdentity = new RAIdentityImpl(raId);
+    int natureOfAddressIndicator = 4;
+    String locationNumberAddressDigits= "819203961904";
+    int numberingPlanIndicator = 1;
+    int internalNetworkNumberIndicator = 1;
+    int addressRepresentationRestrictedIndicator = 1;
+    int screeningIndicator = 3;
+    private LocationNumber locationNumber = new LocationNumberImpl(natureOfAddressIndicator, locationNumberAddressDigits, numberingPlanIndicator,
+            internalNetworkNumberIndicator, addressRepresentationRestrictedIndicator, screeningIndicator);
+    private LocationNumberMap locationNumberMap;
+
+    {
+        try {
+            locationNumberMap = new LocationNumberMapImpl(locationNumber);
+        } catch (MAPException e) {
+            e.printStackTrace();
+        }
+    }
+
     NumberPortabilityStatus numberPortabilityStatus = NumberPortabilityStatus.ownNumberNotPortedOut;
 
     private CellGlobalIdOrServiceAreaIdOrLAI cellGlobalIdOrServiceAreaIdOrLAI;
@@ -218,6 +260,8 @@ public class TestPsiServerConfigurationData {
                     geodeticInformation, currentLocationRetrieved, aol, mmeName);
             locationInformation = new LocationInformationImpl(aol, geographicalInformation, vlrNumber, locationNumberMap, cellGlobalIdOrServiceAreaIdOrLAI, mapExtensionContainer, lsaIdentity, mscNumber, geodeticInformation, currentLocationRetrieved,
                     saiPresent, locationInformationEPS, userCSGInformation);
+            locationInformationGPRS = new LocationInformationGPRSImpl(cellGlobalIdOrServiceAreaIdOrLAI, routeingAreaIdentity, geographicalInformation, sgsnNumber,
+                    selectedLSAIdentity, mapExtensionContainer, saiPresent, geodeticInformation, currentLocationRetrieved, aol);
             mnpInfoRes = new MNPInfoResImpl(routeingNumber, null, msisdn, numberPortabilityStatus, mapExtensionContainer);
             subscriberInfo = new SubscriberInfoImpl(locationInformation, subscriberState, mapExtensionContainer,
                     locationInformationGPRS, psSubscriberState, iMei, msClassmark2, gprsmsClass, mnpInfoRes);
@@ -290,6 +334,14 @@ public class TestPsiServerConfigurationData {
         this.lmsi = lmsi;
     }
 
+    public org.restcomm.protocols.ss7.map.api.primitives.IMEI getiMei() {
+        return iMei;
+    }
+
+    public void setiMei(org.restcomm.protocols.ss7.map.api.primitives.IMEI iMei) {
+        this.iMei = iMei;
+    }
+
     public int getMcc() {
         return mcc;
     }
@@ -352,6 +404,46 @@ public class TestPsiServerConfigurationData {
 
     public void setVlrNumber(ISDNAddressString vlrNumber) {
         this.vlrNumber = vlrNumber;
+    }
+
+    public ISDNAddressString getSgsnNumber() {
+        return sgsnNumber;
+    }
+
+    public void setSgsnNumber(ISDNAddressString sgsnNumber) {
+        this.sgsnNumber = sgsnNumber;
+    }
+
+    public String getSgsnAddress() {
+        return sgsnAddress;
+    }
+
+    public void setSgsnAddress(String sgsnAddress) {
+        this.sgsnAddress = sgsnAddress;
+    }
+
+    public String getTaIdString() {
+        return taIdString;
+    }
+
+    public void setTaIdString(String taIdString) {
+        this.taIdString = taIdString;
+    }
+
+    public String getLsaIdString() {
+        return lsaIdString;
+    }
+
+    public void setLsaIdString(String lsaIdString) {
+        this.lsaIdString = lsaIdString;
+    }
+
+    public String getRaIdString() {
+        return raIdString;
+    }
+
+    public void setRaIdString(String raIdString) {
+        this.raIdString = raIdString;
     }
 
     public int getAol() {
@@ -466,6 +558,14 @@ public class TestPsiServerConfigurationData {
         this.currentLocationRetrieved = currentLocationRetrieved;
     }
 
+    public String getMmeNameString() {
+        return mmeNameString;
+    }
+
+    public void setMmeNameString(String mmeNameString) {
+        this.mmeNameString = mmeNameString;
+    }
+
     public EUtranCgi geteUtranCgi() {
         return eUtranCgi;
     }
@@ -474,12 +574,68 @@ public class TestPsiServerConfigurationData {
         this.eUtranCgi = eUtranCgi;
     }
 
+    public String geteUtranCgiString() {
+        return eUtranCgiString;
+    }
+
+    public void seteUtranCgiString(String eUtranCgiString) {
+        this.eUtranCgiString = eUtranCgiString;
+    }
+
     public TAId getTaId() {
         return taId;
     }
 
     public void setTaId(TAId taId) {
         this.taId = taId;
+    }
+
+    public int getNatureOfAddressIndicator() {
+        return natureOfAddressIndicator;
+    }
+
+    public void setNatureOfAddressIndicator(int natureOfAddressIndicator) {
+        this.natureOfAddressIndicator = natureOfAddressIndicator;
+    }
+
+    public String getLocationNumberAddressDigits() {
+        return locationNumberAddressDigits;
+    }
+
+    public void setLocationNumberAddressDigits(String locationNumberAddressDigits) {
+        this.locationNumberAddressDigits = locationNumberAddressDigits;
+    }
+
+    public int getNumberingPlanIndicator() {
+        return numberingPlanIndicator;
+    }
+
+    public void setNumberingPlanIndicator(int numberingPlanIndicator) {
+        this.numberingPlanIndicator = numberingPlanIndicator;
+    }
+
+    public int getInternalNetworkNumberIndicator() {
+        return internalNetworkNumberIndicator;
+    }
+
+    public void setInternalNetworkNumberIndicator(int internalNetworkNumberIndicator) {
+        this.internalNetworkNumberIndicator = internalNetworkNumberIndicator;
+    }
+
+    public int getAddressRepresentationRestrictedIndicator() {
+        return addressRepresentationRestrictedIndicator;
+    }
+
+    public void setAddressRepresentationRestrictedIndicator(int addressRepresentationRestrictedIndicator) {
+        this.addressRepresentationRestrictedIndicator = addressRepresentationRestrictedIndicator;
+    }
+
+    public int getScreeningIndicator() {
+        return screeningIndicator;
+    }
+
+    public void setScreeningIndicator(int screeningIndicator) {
+        this.screeningIndicator = screeningIndicator;
     }
 
     public MAPExtensionContainer getMapExtensionContainer() {
@@ -514,6 +670,22 @@ public class TestPsiServerConfigurationData {
         this.lsaIdentity = lsaIdentity;
     }
 
+    public LSAIdentity getSelectedLSAIdentity() {
+        return selectedLSAIdentity;
+    }
+
+    public void setSelectedLSAIdentity(LSAIdentity selectedLSAIdentity) {
+        this.selectedLSAIdentity = selectedLSAIdentity;
+    }
+
+    public RAIdentity getRouteingAreaIdentity() {
+        return routeingAreaIdentity;
+    }
+
+    public void setRouteingAreaIdentity(RAIdentity routeingAreaIdentity) {
+        this.routeingAreaIdentity = routeingAreaIdentity;
+    }
+
     public LocationNumberMap getLocationNumberMap() {
         return locationNumberMap;
     }
@@ -536,6 +708,14 @@ public class TestPsiServerConfigurationData {
 
     public void setSubscriberStateChoice(SubscriberStateChoice subscriberStateChoice) {
         this.subscriberStateChoice = subscriberStateChoice;
+    }
+
+    public PSSubscriberStateChoice getPsSubscriberStateChoice() {
+        return psSubscriberStateChoice;
+    }
+
+    public void setPsSubscriberStateChoice(PSSubscriberStateChoice psSubscriberStateChoice) {
+        this.psSubscriberStateChoice = psSubscriberStateChoice;
     }
 
     public NotReachableReason getNotReachableReason() {
@@ -600,14 +780,6 @@ public class TestPsiServerConfigurationData {
 
     public void setImei(String imei) {
         this.imei = imei;
-    }
-
-    public IMEI getIMei() {
-        return iMei;
-    }
-
-    public void setIMei(IMEI imei) {
-        this.iMei = imei;
     }
 
     public MSClassmark2 getMsClassmark2() {
@@ -798,6 +970,14 @@ public class TestPsiServerConfigurationData {
         this.mapParameterFactory = mapParameterFactory;
     }
 
+    public LocationNumber getLocationNumber() {
+        return locationNumber;
+    }
+
+    public void setLocationNumber(LocationNumber locationNumber) {
+        this.locationNumber = locationNumber;
+    }
+
     protected static final XMLFormat<TestPsiServerConfigurationData> XML = new XMLFormat<TestPsiServerConfigurationData>(TestPsiServerConfigurationData.class) {
 
         public void write(TestPsiServerConfigurationData clt, OutputElement xml) throws XMLStreamException {
@@ -828,22 +1008,19 @@ public class TestPsiServerConfigurationData {
             xml.add(clt.geodeticUncertainty, GEODETIC_UNCERTAINTY, Double.class);
             xml.add(clt.geodeticConfidence, GEODETIC_CONFIDENCE, Integer.class);
             xml.add(clt.currentLocationRetrieved, CURRENT_LOCATION_RETRIEVED, Boolean.class);
-            xml.add(clt.mmeName.getData().toString(), MME_NAME, String.class);
+            xml.add(clt.mmeNameString, MME_NAME, String.class);
             xml.add(clt.subscriberStateStr, SUBSCRIBER_STATE, String.class);
             xml.add(clt.routeingNum, ROUTEING_NUMBER, String.class);
-            /*xml.add(clt.msClassmark2.getData().toString(), MS_CLASSMARK_2, String.class);
-            xml.add(clt.eUtranCgi.getData().toString(), E_UTRAN_CGI, String.class);
-            xml.add(clt.taId.getData().toString(), TA_ID, String.class);
-            xml.add(clt.psSubscriberState.getChoice().toString(), PS_SUBSCRIBER_STATE, String.class);
-            xml.add(clt.lsaIdentity.getData().toString(), LSA_IDENTITY, String.class);
+            xml.add(clt.eUtranCgiString, E_UTRAN_CGI, String.class);
+            xml.add(clt.taIdString, TA_ID, String.class);
+            xml.add(clt.lsaIdString, LSA_IDENTITY, String.class);
             try {
                 xml.add(clt.locationNumberMap.getLocationNumber().getAddress(), LOCATION_NUMBER_MAP, String.class);
             } catch (MAPException e) {
                 e.printStackTrace();
             }
-            xml.add(clt.userCSGInformation.getCSGId().getData().getStrictLength(), USER_CGI_INFORMATION, Integer.class);
             xml.add(clt.locationInformationGPRS.getSGSNNumber().getAddress(), LOCATION_INFORMATION_GPRS, String.class);
-            xml.add(clt.gprsmsClass.getMSNetworkCapability().getData().toString(), GPRS_MS_CLASS, String.class);*/
+            xml.add(clt.psSubscriberStateChoiceString, PS_SUBSCRIBER_STATE, String.class);
         }
 
         public void read(XMLFormat.InputElement xml, TestPsiServerConfigurationData clt) throws XMLStreamException {
@@ -905,6 +1082,29 @@ public class TestPsiServerConfigurationData {
             clt.subscriberStateChoice = SubscriberStateChoice.valueOf(subscriberStateChoice);
             String routeingNumber = (String) xml.get("routeingNumber", String.class);
             clt.routeingNum = routeingNumber;
+            String eUtranCgi = (String) xml.get("eUtranCgi", String.class);
+            clt.eUtranCgi = new EUtranCgiImpl();
+            String taId = (String) xml.get("taId", String.class);
+            clt.taId = new TAIdImpl();
+            String lsaId = (String) xml.get("tlsId", String.class);
+            clt.lsaIdentity = new LSAIdentityImpl();
+            String sgsnNumber = (String) xml.get("sgsnNumber", String.class);
+            clt.sgsnNumber = new ISDNAddressStringImpl(clt.addressNature, clt.numberingPlanType, sgsnNumber);
+            String locationNumberMap = (String) xml.get("locationNumberMap", String.class);
+            clt.locationNumberMap = new LocationNumberMap() {
+                @Override
+                public byte[] getData() {
+                    return new byte[0];
+                }
+
+                @Override
+                public LocationNumber getLocationNumber() throws MAPException {
+                    return null;
+                }
+            };
+            String locationNumber = (String) xml.get("locationNumber", String.class);
+            clt.locationNumber = new LocationNumberImpl();
+
         }
     };
 }

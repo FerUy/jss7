@@ -24,6 +24,8 @@ package org.restcomm.protocols.ss7.tools.simulator.tests.psi;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
+import org.restcomm.protocols.ss7.isup.impl.message.parameter.LocationNumberImpl;
+import org.restcomm.protocols.ss7.isup.message.parameter.LocationNumber;
 import org.restcomm.protocols.ss7.map.api.MAPException;
 import org.restcomm.protocols.ss7.map.api.MAPParameterFactory;
 import org.restcomm.protocols.ss7.map.api.MAPProvider;
@@ -71,12 +73,13 @@ import org.restcomm.protocols.ss7.map.api.service.mobility.locationManagement.Pu
 import org.restcomm.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeRequest_Mobility;
 import org.restcomm.protocols.ss7.map.api.service.mobility.oam.ActivateTraceModeResponse_Mobility;
 
+import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
+import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoRequest;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.ProvideSubscriberInfoResponse;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationRequest;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeInterrogationResponse;
-import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationRequest;
-import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.AnyTimeSubscriptionInterrogationResponse;
+import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.RAIdentity;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.SubscriberInfo;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationInformation;
 import org.restcomm.protocols.ss7.map.api.service.mobility.subscriberInformation.LocationInformationGPRS;
@@ -134,11 +137,15 @@ import org.restcomm.protocols.ss7.map.primitives.LMSIImpl;
 
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.GeographicalInformationImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.GeodeticInformationImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationInformationGPRSImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationNumberMapImpl;
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.RAIdentityImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.RouteingNumberImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.LocationInformationEPSImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.EUtranCgiImpl;
 import org.restcomm.protocols.ss7.map.service.mobility.subscriberInformation.TAIdImpl;
 
+import org.restcomm.protocols.ss7.map.service.mobility.subscriberManagement.LSAIdentityImpl;
 import org.restcomm.protocols.ss7.tools.simulator.Stoppable;
 import org.restcomm.protocols.ss7.tools.simulator.common.AddressNatureType;
 import org.restcomm.protocols.ss7.tools.simulator.common.TesterBase;
@@ -374,8 +381,10 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         CellGlobalIdOrServiceAreaIdFixedLength cgiOrSai = null;
         String mscAddress = "5982123007";
         String vlrAddress = "5982123007";
+        String sgsnAddress = "5982133021";
         ISDNAddressString mscNumber = new ISDNAddressStringImpl(AddressNature.international_number,NumberingPlan.ISDN, mscAddress);
         ISDNAddressString vlrNumber = new ISDNAddressStringImpl(AddressNature.international_number,NumberingPlan.ISDN, vlrAddress);
+        ISDNAddressString sgsnNumber = new ISDNAddressStringImpl(AddressNature.international_number,NumberingPlan.ISDN, sgsnAddress);
         int aol = 1;
         boolean saiPresent = false;
         GeographicalInformation geographicalInformation = null;
@@ -399,8 +408,25 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         MAPExtensionContainer mapExtensionContainer = null;
         byte[] mmeNom = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49};
         DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
-        LSAIdentity lsaIdentity = null;
+        byte[] lsaId = {49, 51, 50};
+        LSAIdentity selectedLSAIdentity = new LSAIdentityImpl(lsaId);
+        byte[] raId = {49, 51, 50, 57, 53, 50};
+        RAIdentity routeingAreaIdentity = new RAIdentityImpl(raId);
+
+        int natureOfAddressIndicator = 4;
+        String locationNumberAddressDigits= "819203961904";
+        int numberingPlanIndicator = 1;
+        int internalNetworkNumberIndicator = 1;
+        int addressRepresentationRestrictedIndicator = 1;
+        int screeningIndicator = 3;
+        LocationNumber locationNumber = new LocationNumberImpl(natureOfAddressIndicator, locationNumberAddressDigits, numberingPlanIndicator,
+                internalNetworkNumberIndicator, addressRepresentationRestrictedIndicator, screeningIndicator);
         LocationNumberMap locationNumberMap = null;
+        try {
+            locationNumberMap = new LocationNumberMapImpl(locationNumber);
+        } catch (MAPException e) {
+            e.printStackTrace();
+        }
         UserCSGInformation userCSGInformation = null;
         SubscriberState subscriberState;
         SubscriberStateChoice subscriberStateChoice = SubscriberStateChoice.assumedIdle;
@@ -426,8 +452,10 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
             locationInformationEPS = new LocationInformationEPSImpl(eUtranCgi, taId, mapExtensionContainer, geographicalInformation,
                     geodeticInformation, currentLocationRetrieved, aol, mmeName);
             locationInformation = mapProvider.getMAPParameterFactory().createLocationInformation(aol, geographicalInformation,
-                    vlrNumber,locationNumberMap, cellGlobalIdOrServiceAreaIdOrLAI, mapExtensionContainer, lsaIdentity, mscNumber, geodeticInformation, currentLocationRetrieved,
+                    vlrNumber,locationNumberMap, cellGlobalIdOrServiceAreaIdOrLAI, mapExtensionContainer, selectedLSAIdentity, mscNumber, geodeticInformation, currentLocationRetrieved,
                     saiPresent, locationInformationEPS, userCSGInformation);
+            locationInformationGPRS = new LocationInformationGPRSImpl(cellGlobalIdOrServiceAreaIdOrLAI, routeingAreaIdentity, geographicalInformation, sgsnNumber,
+                    selectedLSAIdentity, mapExtensionContainer, saiPresent, geodeticInformation, currentLocationRetrieved, aol);
             mnpInfoRes = mapProvider.getMAPParameterFactory().createMNPInfoRes(routeingNumber, imsi, msisdn, numberPortabilityStatus, mapExtensionContainer);
             subscriberInfo = mapProvider.getMAPParameterFactory().createSubscriberInfo(locationInformation, subscriberState, mapExtensionContainer,
                     locationInformationGPRS, psSubscriberState, imei, msClassmark2, gprsmsClass, mnpInfoRes);
@@ -456,21 +484,27 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         StringBuilder sb = new StringBuilder();
         sb.append("dialogId=");
         sb.append(provideSubscriberInfoRequest.getMAPDialog().getLocalDialogId());
-        sb.append(",\nPSI Req=");
-        sb.append(provideSubscriberInfoRequest);
-        sb.append(",\nPSI Requested Info=");
-        sb.append(provideSubscriberInfoRequest.getRequestedInfo());
-        sb.append(",\nIMSI=");
-        sb.append(provideSubscriberInfoRequest.getImsi());
-        sb.append(",\nLMSI=");
-        sb.append(provideSubscriberInfoRequest.getLmsi());
+        sb.append(",\nPSI Operastion Code=");
+        sb.append(provideSubscriberInfoRequest.getOperationCode());
         sb.append(",\nRemoteAddress=");
         sb.append(provideSubscriberInfoRequest.getMAPDialog().getRemoteAddress());
         sb.append(",\nLocalAddress=");
         sb.append(provideSubscriberInfoRequest.getMAPDialog().getLocalAddress());
-        sb.append(",\nRequested Info=");
-        sb.append(provideSubscriberInfoRequest.getRequestedInfo());
-
+        sb.append(",\nIMSI=");
+        sb.append(provideSubscriberInfoRequest.getImsi());
+        sb.append(",\nLMSI=");
+        sb.append(provideSubscriberInfoRequest.getLmsi());
+        sb.append(",\nPSI Requested Info: ");
+        sb.append(",\nLocationInformation=");
+        sb.append(provideSubscriberInfoRequest.getRequestedInfo().getLocationInformation());
+        sb.append(",\nSubscriberState=");
+        sb.append(provideSubscriberInfoRequest.getRequestedInfo().getSubscriberState());
+        sb.append(",\nCurrentLocation=");
+        sb.append(provideSubscriberInfoRequest.getRequestedInfo().getCurrentLocation());
+        sb.append(",\nIMEI=");
+        sb.append(provideSubscriberInfoRequest.getRequestedInfo().getImei());
+        sb.append(",\nMNP Info=");
+        sb.append(provideSubscriberInfoRequest.getRequestedInfo().getMnpRequestedInfo());
         return sb.toString();
     }
 
@@ -490,8 +524,25 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         } catch (MAPException e) {
             e.printStackTrace();
         }
-        sb.append(",\nLocation Information number=");
-        sb.append(subscriberInfo.getLocationInformation().getLocationNumber());
+        sb.append(",\nLocation number=");
+        try {
+            sb.append(",\nLocation number address digits=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getAddress());
+            sb.append(",\nLocation number NAI=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getNatureOfAddressIndicator());
+            sb.append(",\nLocation number code=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getCode());
+            sb.append(",\nLocation number NPI=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getNumberingPlanIndicator());
+            sb.append(",\nLocation number AddressRepresentationRestrictedIndicator=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getAddressRepresentationRestrictedIndicator());
+            sb.append(",\nLocation number InternalNetworkNumberIndicator=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getInternalNetworkNumberIndicator());
+            sb.append(",\nLocation number ScreeningIndicator=");
+            sb.append(subscriberInfo.getLocationInformation().getLocationNumber().getLocationNumber().getScreeningIndicator());
+        } catch (MAPException e) {
+            e.printStackTrace();
+        }
         sb.append(",\nMSC number=");
         sb.append(subscriberInfo.getLocationInformation().getMscNumber().getAddress());
         sb.append(",\nVLR number=");
@@ -524,16 +575,6 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         sb.append(subscriberInfo.getLocationInformation().getGeodeticInformation().getScreeningAndPresentationIndicators());
         sb.append(",\nMME name=");
         sb.append(new String(subscriberInfo.getLocationInformation().getLocationInformationEPS().getMmeName().getData()));
-        sb.append(",\nMNP info result number portability status=");
-        sb.append(subscriberInfo.getMNPInfoRes().getNumberPortabilityStatus().getType());
-        sb.append(",\nMNP info result MSISDN=");
-        sb.append(subscriberInfo.getMNPInfoRes().getMSISDN().getAddress());
-        sb.append(",\nMNP info result IMSI=");
-        sb.append(subscriberInfo.getMNPInfoRes().getIMSI().getData());
-        sb.append(",\nMNP info result MSISDN=");
-        sb.append(subscriberInfo.getMNPInfoRes().getMSISDN().getAddress());
-        sb.append(",\nMNP info result Routeing Number=");
-        sb.append(subscriberInfo.getMNPInfoRes().getRouteingNumber().getRouteingNumber());
         sb.append(",\nE-UTRAN CGI=");
         sb.append(new String(subscriberInfo.getLocationInformation().getLocationInformationEPS().getEUtranCellGlobalIdentity().getData()));
         sb.append(",\nEPS Traking Identity=");
@@ -564,6 +605,48 @@ public class TestPsiServerMan extends TesterBase implements TestPsiServerManMBea
         sb.append(subscriberInfo.getLocationInformation().getLocationInformationEPS().getAgeOfLocationInformation());
         sb.append(",\nEPS Current Location Retrieved=");
         sb.append(subscriberInfo.getLocationInformation().getLocationInformationEPS().getCurrentLocationRetrieved());
+        sb.append(",\nGPRS GeographicalLatitude=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeographicalInformation().getLatitude());
+        sb.append(",\nGPRS Geographical Longitude=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeographicalInformation().getLongitude());
+        sb.append(",\nGPRS GeographicalUncertainty=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeographicalInformation().getUncertainty());
+        sb.append(",\nGPRS Geographical Type of Shape=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeographicalInformation().getTypeOfShape());
+        sb.append(",\nGPRS Geodetic Latitude=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeodeticInformation().getLatitude());
+        sb.append(",\nGPRS Geodetic Longitude=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeodeticInformation().getLongitude());
+        sb.append(",\nGPRS Geodetic Uncertainty=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeodeticInformation().getUncertainty());
+        sb.append(",\nGPRS Geodetic Confidence=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeodeticInformation().getConfidence());
+        sb.append(",\nGPRS Geodetic Type of Shape=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeodeticInformation().getTypeOfShape());
+        sb.append(",\nGPRS Geodetic Screening and Presentation Indicators=");
+        sb.append(subscriberInfo.getLocationInformationGPRS().getGeodeticInformation().getScreeningAndPresentationIndicators());
+        try {
+            sb.append(",\nMCC=");
+            sb.append(subscriberInfo.getLocationInformationGPRS().getCellGlobalIdOrServiceAreaIdOrLAI().getCellGlobalIdOrServiceAreaIdFixedLength().getMCC());
+            sb.append(",\nMNC=");
+            sb.append(subscriberInfo.getLocationInformationGPRS().getCellGlobalIdOrServiceAreaIdOrLAI().getCellGlobalIdOrServiceAreaIdFixedLength().getMNC());
+            sb.append(",\nLAC=");
+            sb.append(subscriberInfo.getLocationInformationGPRS().getCellGlobalIdOrServiceAreaIdOrLAI().getCellGlobalIdOrServiceAreaIdFixedLength().getLac());
+            sb.append(",\nCI=");
+            sb.append(subscriberInfo.getLocationInformationGPRS().getCellGlobalIdOrServiceAreaIdOrLAI().getCellGlobalIdOrServiceAreaIdFixedLength().getCellIdOrServiceAreaCode());
+        } catch (MAPException e) {
+            e.printStackTrace();
+        }
+        sb.append(",\nMNP info result number portability status=");
+        sb.append(subscriberInfo.getMNPInfoRes().getNumberPortabilityStatus().getType());
+        sb.append(",\nMNP info result MSISDN=");
+        sb.append(subscriberInfo.getMNPInfoRes().getMSISDN().getAddress());
+        sb.append(",\nMNP info result IMSI=");
+        sb.append(subscriberInfo.getMNPInfoRes().getIMSI().getData());
+        sb.append(",\nMNP info result MSISDN=");
+        sb.append(subscriberInfo.getMNPInfoRes().getMSISDN().getAddress());
+        sb.append(",\nMNP info result Routeing Number=");
+        sb.append(subscriberInfo.getMNPInfoRes().getRouteingNumber().getRouteingNumber());
 
         return sb.toString();
     }
