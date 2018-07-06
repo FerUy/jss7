@@ -189,14 +189,14 @@ public class TestPsiServerConfigurationData {
     private LocationInformationEPS locationInformationEPS = null;
     private boolean currentLocationRetrieved = true;
     byte[] lteCgi = {53, 48, 57, 50, 49, 55, 49};
-    private String eUtranCgiString = new String(lteCgi.getClass().toString());
+    private String eUtranCgiString = "eUtranCgiString"; // new String(lteCgi.getClass().toString());
     EUtranCgi eUtranCgi = new EUtranCgiImpl(lteCgi);
     byte[] trackinAreaId = {49, 51, 50, 57, 53};
-    private String taIdString = trackinAreaId.getClass().toString();
+    private String taIdString = "taIdString"; //trackinAreaId.getClass().toString();
     TAId taId = new TAIdImpl(trackinAreaId);
     private MAPExtensionContainer mapExtensionContainer = null;
     byte[] mmeNom = {77, 77, 69, 55, 52, 56, 48, 48, 48, 49};
-    private String mmeNameString = mmeNom.getClass().getName();
+    private String mmeNameString = "mmeNameString"; //mmeNom.getClass().getName();
     private DiameterIdentity mmeName = new DiameterIdentityImpl(mmeNom);
     private LSAIdentity lsaIdentity = null;
     private UserCSGInformation userCSGInformation = null;
@@ -207,7 +207,6 @@ public class TestPsiServerConfigurationData {
     private SubscriberState subscriberState = new SubscriberStateImpl(subscriberStateChoice, notReachableReason);
     LocationInformationGPRS locationInformationGPRS = null;
     private PSSubscriberStateChoice psSubscriberStateChoice = PSSubscriberStateChoice.psAttachedReachableForPaging;
-    private String psSubscriberStateChoiceString = String.valueOf(psSubscriberStateChoice);
     ArrayList<PDPContextInfo> pdpContextInfoList = null;
     private PSSubscriberState psSubscriberState = new PSSubscriberStateImpl(psSubscriberStateChoice, notReachableReason, pdpContextInfoList);
     GPRSMSClass gprsmsClass = null;
@@ -220,7 +219,7 @@ public class TestPsiServerConfigurationData {
     ISDNAddressString msisdn = new ISDNAddressStringImpl(AddressNature.international_number,
             NumberingPlan.ISDN, msisdnStr);
     byte[] lsaId = {49, 51, 50};
-    private String lsaIdString = lsaId.getClass().toString();
+    private String lsaIdString = "lsaIdString"; //lsaId.getClass().toString();
     LSAIdentity selectedLSAIdentity = new LSAIdentityImpl(lsaId);
     byte[] raId = {49, 51, 50, 57, 53, 50};
     private String raIdString = raId.getClass().toString();
@@ -334,11 +333,11 @@ public class TestPsiServerConfigurationData {
         this.lmsi = lmsi;
     }
 
-    public org.restcomm.protocols.ss7.map.api.primitives.IMEI getiMei() {
+    public IMEI getiMei() {
         return iMei;
     }
 
-    public void setiMei(org.restcomm.protocols.ss7.map.api.primitives.IMEI iMei) {
+    public void setiMei(IMEI iMei) {
         this.iMei = iMei;
     }
 
@@ -1014,97 +1013,80 @@ public class TestPsiServerConfigurationData {
             xml.add(clt.eUtranCgiString, E_UTRAN_CGI, String.class);
             xml.add(clt.taIdString, TA_ID, String.class);
             xml.add(clt.lsaIdString, LSA_IDENTITY, String.class);
-            try {
-                xml.add(clt.locationNumberMap.getLocationNumber().getAddress(), LOCATION_NUMBER_MAP, String.class);
-            } catch (MAPException e) {
-                e.printStackTrace();
-            }
-            xml.add(clt.locationInformationGPRS.getSGSNNumber().getAddress(), LOCATION_INFORMATION_GPRS, String.class);
-            xml.add(clt.psSubscriberStateChoiceString, PS_SUBSCRIBER_STATE, String.class);
+            xml.add(clt.locationNumberAddressDigits, LOCATION_NUMBER_MAP, String.class);
+            xml.add(clt.sgsnAddress, LOCATION_INFORMATION_GPRS, String.class);
+            xml.add(clt.psSubscriberStateChoice.toString(), PS_SUBSCRIBER_STATE, String.class);
         }
 
         public void read(XMLFormat.InputElement xml, TestPsiServerConfigurationData clt) throws XMLStreamException {
-            String an = (String) xml.get("addressNature", String.class);
+            String an = (String) xml.get(ADDRESS_NATURE, String.class);
             clt.addressNature = AddressNature.valueOf(an);
-            String npt = (String) xml.get("numberingPlanType", String.class);
+            String npt = (String) xml.get(NUMBERING_PLAN_TYPE, String.class);
             clt.numberingPlanType = NumberingPlan.valueOf(npt);
-            String np = (String) xml.get("numberingPlan", String.class);
+            String np = (String) xml.get(NUMBERING_PLAN, String.class);
             clt.numberingPlan = np;
-            String imsi = (String) xml.get("imsi", String.class);
+            String imsi = (String) xml.get(IMSI, String.class);
             clt.imsi = imsi;
-            String lmsi = (String) xml.get("lmsi", String.class);
+            String lmsi = (String) xml.get(LMSI, String.class);
             clt.lmsi = lmsi;
-            String networkNodeNumber = (String) xml.get("networkNodeNumber", String.class);
+            String networkNodeNumber = (String) xml.get(NETWORK_NODE_NUMBER_ADDRESS, String.class);
             clt.networkNodeNumber = networkNodeNumber;
-            String imei = (String) xml.get("imei", String.class);
+            String imei = (String) xml.get(IMEI, String.class);
             clt.imei = imei;
-            String msisdn = (String) xml.get("msisdn", String.class);
+            String msisdn = (String) xml.get(MSISDN, String.class);
             clt.msisdn = new ISDNAddressStringImpl(clt.addressNature, clt.numberingPlanType, msisdn);
-            Integer mcc = (Integer) xml.get("mcc", Integer.class);
+            Integer mcc = (Integer) xml.get(MCC, Integer.class);
             clt.mcc = mcc.intValue();
-            Integer mnc = (Integer) xml.get("mnc", Integer.class);
+            Integer mnc = (Integer) xml.get(MNC, Integer.class);
             clt.mnc = mnc.intValue();
-            Integer lac = (Integer) xml.get("algo", Integer.class);
+            Integer lac = (Integer) xml.get(LAC, Integer.class);
             clt.lac = lac.intValue();
-            Integer ci = (Integer) xml.get("ci", Integer.class);
+            Integer ci = (Integer) xml.get(CI, Integer.class);
             clt.ci = ci.intValue();
-            String mscNumber = (String) xml.get("mscNumber", String.class);
+            String mscNumber = (String) xml.get(MSC_NUMBER, String.class);
             clt.mscNumber = new ISDNAddressStringImpl(clt.addressNature, clt.numberingPlanType, mscNumber);
-            String vlrNumber = (String) xml.get("vlrNumber", String.class);
+            String vlrNumber = (String) xml.get(VLR_NUMBER, String.class);
             clt.vlrNumber = new ISDNAddressStringImpl(clt.addressNature, clt.numberingPlanType, vlrNumber);
-            Integer aol = (Integer) xml.get("aol", Integer.class);
+            Integer aol = (Integer) xml.get(AOL, Integer.class);
             clt.aol = aol.intValue();
-            Boolean saiPresent = (Boolean) xml.get("saiPresent", Boolean.class);
+            Boolean saiPresent = (Boolean) xml.get(SAI_PRESENT, Boolean.class);
             clt.saiPresent = saiPresent.booleanValue();
-            Integer geographicalTypeOfShape = (Integer) xml.get("geographicalTypeOfShape", Integer.class);
+            Integer geographicalTypeOfShape = (Integer) xml.get(GEOGRAPHICAL_TYPE_OF_SHAPE, Integer.class);
             clt.geographicalTypeOfShape = TypeOfShape.values()[geographicalTypeOfShape.intValue()];
-            Double geographicalLatitude = (Double) xml.get("geographicalLatitude", Double.class);
+            Double geographicalLatitude = (Double) xml.get(GEOGRAPHICAL_LATITUDE, Double.class);
             clt.geographicalLatitude = geographicalLatitude;
-            Double geographicalLongitude = (Double) xml.get("geographicalLongitude", Double.class);
+            Double geographicalLongitude = (Double) xml.get(GEOGRAPHICAL_LONGITUDE, Double.class);
             clt.geographicalLongitude = geographicalLongitude;
-            Double geographicalUncertainty = (Double) xml.get("geographicalUncertainty", Double.class);
+            Double geographicalUncertainty = (Double) xml.get(GEOGRAPHICAL_UNCERTAINTY, Double.class);
             clt.geographicalUncertainty = geographicalUncertainty;
-            Integer geodeticTypeOfShape = (Integer) xml.get("geodeticTypeOfShape", Integer.class);
+            Integer geodeticTypeOfShape = (Integer) xml.get(GEODETIC_TYPE_OF_SHAPE, Integer.class);
             clt.geodeticTypeOfShape = TypeOfShape.values()[geodeticTypeOfShape.intValue()];
-            Double geodeticLatitude = (Double) xml.get("geodeticLatitude", Double.class);
+            Double geodeticLatitude = (Double) xml.get(GEODETIC_LATITUDE, Double.class);
             clt.geodeticLatitude = geodeticLatitude;
-            Double geodeticLongitude = (Double) xml.get("geodeticLongitude", Double.class);
+            Double geodeticLongitude = (Double) xml.get(GEODETIC_LONGITUDE, Double.class);
             clt.geodeticLongitude = geodeticLongitude;
-            Double geodeticUncertainty = (Double) xml.get("geodeticUncertainty", Double.class);
+            Double geodeticUncertainty = (Double) xml.get(GEODETIC_UNCERTAINTY, Double.class);
             clt.geodeticUncertainty = geodeticUncertainty;
-            Integer geodeticConfidence = (Integer) xml.get("geodeticConfidence", Integer.class);
+            Integer geodeticConfidence = (Integer) xml.get(GEODETIC_CONFIDENCE, Integer.class);
             clt.geodeticConfidence = geodeticConfidence.intValue();
-            Boolean currentLocationRetrieved = (Boolean) xml.get("currentLocationRetrieved", Boolean.class);
+            Boolean currentLocationRetrieved = (Boolean) xml.get(CURRENT_LOCATION_RETRIEVED, Boolean.class);
             clt.currentLocationRetrieved = currentLocationRetrieved.booleanValue();
-            String mmeName = (String) xml.get("mmeName", String.class);
+            String mmeName = (String) xml.get(MME_NAME, String.class);
             clt.mmeName = new DiameterIdentityImpl();
-            String subscriberStateChoice = (String) xml.get("subscriberState", String.class);
+            String subscriberStateChoice = (String) xml.get(SUBSCRIBER_STATE, String.class);
             clt.subscriberStateChoice = SubscriberStateChoice.valueOf(subscriberStateChoice);
-            String routeingNumber = (String) xml.get("routeingNumber", String.class);
+            String routeingNumber = (String) xml.get(ROUTEING_NUMBER, String.class);
             clt.routeingNum = routeingNumber;
-            String eUtranCgi = (String) xml.get("eUtranCgi", String.class);
+            String eUtranCgi = (String) xml.get(E_UTRAN_CGI, String.class);
             clt.eUtranCgi = new EUtranCgiImpl();
-            String taId = (String) xml.get("taId", String.class);
+            String taId = (String) xml.get(TA_ID, String.class);
             clt.taId = new TAIdImpl();
-            String lsaId = (String) xml.get("tlsId", String.class);
+            String lsaId = (String) xml.get(LSA_IDENTITY, String.class);
             clt.lsaIdentity = new LSAIdentityImpl();
-            String sgsnNumber = (String) xml.get("sgsnNumber", String.class);
-            clt.sgsnNumber = new ISDNAddressStringImpl(clt.addressNature, clt.numberingPlanType, sgsnNumber);
-            String locationNumberMap = (String) xml.get("locationNumberMap", String.class);
-            clt.locationNumberMap = new LocationNumberMap() {
-                @Override
-                public byte[] getData() {
-                    return new byte[0];
-                }
-
-                @Override
-                public LocationNumber getLocationNumber() throws MAPException {
-                    return null;
-                }
-            };
-            String locationNumber = (String) xml.get("locationNumber", String.class);
-            clt.locationNumber = new LocationNumberImpl();
-
+            clt.locationNumberAddressDigits = (String) xml.get(LOCATION_NUMBER_MAP, String.class);
+            clt.sgsnAddress = (String) xml.get(LOCATION_INFORMATION_GPRS, String.class);
+            String psSubscriberStateChoiceString = (String) xml.get(PS_SUBSCRIBER_STATE, String.class);
+            clt.psSubscriberStateChoice = PSSubscriberStateChoice.valueOf(psSubscriberStateChoiceString);
         }
     };
 }
